@@ -67,8 +67,23 @@ public class ClassFile {
     System.println("static value: " + String.valueOf(101));
   }
 
+  public static void funcThrow() {
+    int a = 0;
+    if (a == 0) throw new RuntimeException("exception message");
+  }
+
+  public static void testException() {
+    try {
+      funcThrow();
+    } catch (RuntimeException e) {
+      System.println("runtime exception");
+    } finally {
+      System.println("exception finally");
+    } // */
+  }
+
   public static void main(String[] args) {
     System.showVersion();
-    testString();
+    testException();
   }
 }

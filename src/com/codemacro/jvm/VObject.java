@@ -10,9 +10,11 @@ import java.util.Map;
  */
 public class VObject {
   private Map<String, Slot> mFields;
+  private final Class mClazz;
 
   public VObject(final Class clazz) {
     mFields = new HashMap<>();
+    mClazz = clazz;
     initialize(clazz);
   }
 
@@ -27,6 +29,8 @@ public class VObject {
     }
     return slot;
   }
+
+  public Class getClazz() { return mClazz; }
 
   private void initialize(final Class clazz) {
     // should we initialize fields list here ?

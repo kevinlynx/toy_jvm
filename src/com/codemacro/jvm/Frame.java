@@ -88,9 +88,17 @@ public class Frame {
   public Thread getThread() {
     return mThread;
   }
-
   public Class getClazz() {
     return mClazz;
+  }
+  public AttributeCode.ExceptionTable getExceptionTable(int idx) { return getCode().getExceptionTable(idx); }
+  public int getExceptionTableLength() { return getCode().getExceptionTableLength(); }
+
+  public int getPC() { return mPC; }
+
+  public void setPC(int pc) {
+    int offset = pc - mPC + 1; // offset OpCode
+    offsetPC(offset);
   }
 
   public void offsetPC(int offset) {
@@ -113,21 +121,24 @@ public class Frame {
   }
 
   public void dump() {
-    System.out.println("Dump frame ==> " + getName());
-    System.out.println("Local Variables:");
+    logger.info("Dump frame ==> " + getName());
+    logger.info("Local Variables:");
+    String line = "";
     for (Slot s : mLocals) {
       if (s != null) { // `main' function
-        System.out.printf(s.toString() + " ");
+        line = line + (s.toString() + " ");
       }
     }
-    System.out.println();
+    logger.info(line);
     if (mStackPos > 0) {
-      System.out.println("Stack:");
+      logger.info("Stack:");
+      line = "";
       for (int i = 0; i < mStackPos; ++i) {
-        System.out.printf(mOperStacks[i].toString() + " ");
+        line = line + (mOperStacks[i].toString() + " ");
       }
+      logger.info(line);
     } else {
-      System.out.println("Stack: <Empty>");
+      logger.info("Stack: <Empty>");
     }
   }
 
@@ -153,13 +164,16 @@ public class Frame {
   }
 
   private AttributeCode getCode() {
+    return (AttributeCode) getAttribute(AttributeInfo.TypeCode);
+  }
+
+  private AttributeInfo getAttribute(String name) {
     for (int i = 0; i < mMethod.getAttributesCount(); ++i) {
       AttributeInfo attr = mMethod.getAttribute(i);
-      if (attr.getName().equals(AttributeInfo.TypeCode)) {
-        return (AttributeCode) attr;
+      if (attr.getName().equals(name)) {
+        return attr;
       }
     }
-    logger.log(Level.SEVERE, "not found code attribute");
     return null;
   }
 }

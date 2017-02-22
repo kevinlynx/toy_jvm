@@ -24,6 +24,10 @@ public class ClassLoader {
       logger.warning("ignore java/lang/Object");
       return null;
     }
+    if (fullName.equals("java/lang/Throwable")) {
+      logger.warning("ignore java/lang/Throwable");
+      return null;
+    }
     Class clazz = mClassTable.get(fullName);
     if (clazz != null) {
       return clazz;

@@ -166,6 +166,15 @@ public class InstructionFactory {
         frame.offsetPC(offset);
       }
     });
+    register(Opcode.op_ifne, (codes, frame) -> {
+      int b1 = codes.readUnsignedByte();
+      int b2 = codes.readUnsignedByte();
+      short offset = (short)((b1 << 8) + b2);
+      int i1 = frame.popInt();
+      if (i1 != 0) {
+        frame.offsetPC(offset);
+      }
+    });
 
     register(Opcode.op_goto, (codes, frame) -> {
       int b1 = codes.readUnsignedByte();
@@ -221,6 +230,12 @@ public class InstructionFactory {
       // TODO: do the real cast check
       Object ref = frame.popRef();
       frame.pushRef(ref);
+    });
+
+    register(Opcode.op_athrow, (codes, frame) -> {
+      // TODO: clear the stack leaving only the exception object
+      VObject ex = (VObject) frame.popRef();
+      throwJump(ex, frame);
     });
   }
 
@@ -309,5 +324,45 @@ public class InstructionFactory {
       thread.runToEnd(frame); // until this frame popped
       logger.info("class <clinit> finished");
     }
+  }
+
+  private static void throwJump(VObject ex, Frame frame) {
+    while (frame.getThread().topFrame() != null) {
+      frame.getThread().topFrame().pushRef(ex);
+      int handler = findExceptionHandler(ex, frame.getThread().topFrame());
+      if (handler >= 0) {
+        logger.info("found exception handler at " + handler + " :" + frame.getThread().topFrame().getName());
+        frame.getThread().topFrame().setPC(handler);
+        return;
+      }
+      frame.getThread().popFrame();
+    }
+    throw new RuntimeException("no exception handler for:" + ex.getClazz().getName());
+  }
+
+  private static int findExceptionHandler(VObject ex, Frame frame) {
+    int size = frame.getExceptionTableLength();
+    if (size == 0) {
+      logger.info("no exception table in " + frame.getName());
+      return -1;
+    }
+    int pc = frame.getPC();
+    for (int i = 0; i < size; ++i) {
+      AttributeCode.ExceptionTable et = frame.getExceptionTable(i);
+      if (et.getStartPc() <= pc && pc < et.getEndPc()) { // pc range matched
+        // then check the exception type
+        if (et.getCatchType() == 0) { // finally
+          return et.getHandlerPc();
+        } else {
+          String exClassName = frame.getClazz().resolveClassName(et.getCatchType());
+          // TODO: check inheritance
+          if (ex.getClazz().getName().equals(exClassName)) {
+            return et.getHandlerPc();
+          }
+        }
+      } // pc range check
+    } // for
+    logger.info("not found exception handler in " + frame.getName());
+    return -1;
   }
 }
