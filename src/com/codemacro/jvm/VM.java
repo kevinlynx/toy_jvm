@@ -29,7 +29,7 @@ public class VM {
   }
 
   public static void main(String[] args) {
-    VM vm = new VM(".;lib".split(";"));
+    VM vm = new VM(".;runtime".split(";"));
     vm.run("test/ClassFile");
   }
 }
