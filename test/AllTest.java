@@ -2,7 +2,7 @@ package test;
 
 import java.lang.System;
 
-public class ClassFile {
+public class AllTest {
   private int data;
   private static int s_data;
   static {
@@ -21,7 +21,7 @@ public class ClassFile {
     }
   }
 
-  public ClassFile() {
+  public AllTest() {
     data = 0x11;
   }
 
@@ -52,13 +52,17 @@ public class ClassFile {
 
   public static void testStaticFunc() {
     int a = fac(4);
+    System.println("fac(4):" + String.valueOf(a));
     int b = fac2(4);
+    System.println("fac2(4):" + String.valueOf(b));
   }
 
   public static void testObject() {
-    ClassFile obj = new ClassFile();
-    obj.add(100, 200);
-    int a = obj.data + 3;
+    AllTest obj = new AllTest();
+    int a = obj.add(100, 200);
+    System.println("obj.add:" + String.valueOf(a));
+    a = obj.data + 3;
+    System.println("obj.data + 3 = " + String.valueOf(a));
   }
 
   public static void testString() {
@@ -84,6 +88,9 @@ public class ClassFile {
 
   public static void main(String[] args) {
     System.showVersion();
+    testStaticFunc();
+    testObject();
+    testString();
     testException();
   }
 }
