@@ -34,10 +34,5 @@ public class VObject {
 
   private void initialize(final Class clazz) {
     // should we initialize fields list here ?
-    for (FieldInfo field : clazz.getClassFile().getFields()) {
-      if (0 == (field.getAccessFlags() & FieldInfo.ACC_STATIC)) {
-
-      }
-    }
   }
 }

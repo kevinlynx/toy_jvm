@@ -86,11 +86,17 @@ public class AllTest {
     } // */
   }
 
+  public static void testInnerObject() {
+    InnerStatic obj = new InnerStatic();
+    System.println(String.valueOf(obj.mul(3, 8)));
+  }
+
   public static void main(String[] args) {
     System.showVersion();
+    testInnerObject();
     testStaticFunc();
     testObject();
     testString();
-    testException();
+    testException(); // */
   }
 }
