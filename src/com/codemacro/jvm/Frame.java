@@ -1,9 +1,15 @@
 package com.codemacro.jvm;
 
 import com.codemacro.jvm.instruction.InstructionFactory;
+import com.codemacro.jvm.jit.IR;
+import com.codemacro.jvm.jit.InstParser;
+import com.codemacro.jvm.jit.JITMethodFactory;
+import com.codemacro.jvm.jit.ToyJIT;
 import org.freeinternals.format.classfile.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,6 +26,7 @@ public class Frame {
   private Slot[] mOperStacks;
   private int mStackPos;
   private PosDataInputStream mCodeStream;
+  private ToyJIT mJIT = null;
 
   public Frame(final Thread thread, final Class clazz, final MethodInfo method) {
     mThread = thread;
@@ -29,12 +36,31 @@ public class Frame {
   }
 
   public void run() {
+    if (mJIT != null) {
+      runNative();
+      return;
+    }
     InstructionFactory.Instruction inst = InstructionFactory.createInstruction(mCodeStream);
     try {
       mPC = mCodeStream.getPos();
       inst.exec(mCodeStream, this);
     } catch (IOException e) {
       throw new RuntimeException("load op value failed", e);
+    }
+  }
+
+  private void runNative() {
+    logger.info(getName() + " run into compiled code");
+    int arg_cnt = getArgsCount();
+    int[] args = new int[arg_cnt];
+    for (int i = 0; i < arg_cnt; ++i) {
+      if (mLocals[i].type != Slot.Type.NUM) throw new RuntimeException("only supported number arg in jit");
+      args[i] = mLocals[i].i;
+    }
+    int ret = mJIT.invoke(args);
+    mThread.popFrame();
+    if (hasReturnType() && mThread.topFrame() != null) {
+      mThread.topFrame().pushInt(ret);
     }
   }
 
@@ -161,6 +187,23 @@ public class Frame {
     } catch (IOException e) {
       logger.log(Level.SEVERE, null, e);
     }
+    tryByJIT(attr.getCode(), attr.getMaxLocals(), attr.getMaxStack());
+  }
+
+  private void tryByJIT(final byte[] codes, int maxLocals, int maxStack) {
+    String descriptor = mClazz.getNameInConstantPool(mMethod.getDescriptorIndex());
+    mJIT = JITMethodFactory.compile(mClazz.getName(), getName(), descriptor, codes, maxLocals, maxStack,
+        getArgsCount(), hasReturnType());
+  }
+
+  private int getArgsCount() {
+    int arg_cnt = mClazz.parseArgCount(mMethod, mMethod.getDescriptorIndex());
+    return arg_cnt;
+  }
+
+  private boolean hasReturnType() {
+    String descriptor = mClazz.getNameInConstantPool(mMethod.getDescriptorIndex());
+    return !descriptor.endsWith("V");
   }
 
   private AttributeCode getCode() {

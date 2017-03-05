@@ -9,7 +9,7 @@ import java.util.function.Function;
  */
 public class Main {
   public static void run(String cp, String mainClass) {
-    VM vm = new VM(cp.split(";"));
+    VM vm = new VM(cp.split(";|:"));
     vm.run(mainClass.replace('.', '/'));
   }
 

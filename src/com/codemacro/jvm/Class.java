@@ -117,8 +117,13 @@ public class Class {
     return mCF;
   }
 
+  public int parseArgCount(MethodInfo method, int descIdx) {
+    String descriptor = getNameInConstantPool(descIdx);
+    return parseArgCount(method, descriptor);
+  }
+
   // TODO: handle float & double type
-  private int parseArgCount(MethodInfo method, String descriptor) {
+  public int parseArgCount(MethodInfo method, String descriptor) {
     int i1 = descriptor.indexOf('(');
     int i2 = descriptor.indexOf(')');
     int cnt = (method.getAccessFlags() & MethodInfo.ACC_STATIC) == 0 ? 1 : 0;

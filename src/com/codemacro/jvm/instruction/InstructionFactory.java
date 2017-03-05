@@ -58,7 +58,6 @@ public class InstructionFactory {
     register(Opcode.op_istore_1, createIStore(1));
     register(Opcode.op_istore_2, createIStore(2));
     register(Opcode.op_istore_3, createIStore(3));
-    register(Opcode.op_istore_3, createIStore(3));
     register(Opcode.op_astore_0, createAStore(0));
     register(Opcode.op_astore_1, createAStore(1));
     register(Opcode.op_astore_2, createAStore(2));
@@ -163,6 +162,15 @@ public class InstructionFactory {
       short offset = (short)((b1 << 8) + b2);
       int i1 = frame.popInt();
       if (i1 > 0) {
+        frame.offsetPC(offset);
+      }
+    });
+    register(Opcode.op_ifle, (codes, frame) -> {
+      int b1 = codes.readUnsignedByte();
+      int b2 = codes.readUnsignedByte();
+      short offset = (short)((b1 << 8) + b2);
+      int i1 = frame.popInt();
+      if (i1 <= 0) {
         frame.offsetPC(offset);
       }
     });
