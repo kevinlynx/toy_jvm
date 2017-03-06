@@ -24,9 +24,13 @@ public class Simple3 {
   }
 
   public static void main(String[] args) {
-    System.showVersion(); // TODO: System.registerNative will not called if System is not referenced first
-    System.println(String.valueOf(fac2(3)));
-    System.println(String.valueOf(fac2(4)));
-    //sub(2);
+    int start = System.currentTimeSeconds();
+    System.println(String.valueOf(start));
+    int i = 0;
+    for (; i < 10000; ++i) {
+        fac2(100);
+    }
+    int end = System.currentTimeSeconds();
+    System.println(String.valueOf(i) + " times total used: " + String.valueOf((end - start)));
   }
 }

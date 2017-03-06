@@ -19,9 +19,11 @@ public class JITMethodFactory {
   private static Map<String, ToyJIT> methods = new HashMap<>();
   private static InstParser bytecodeParser = new InstParser();
   private static IR irGenerator = new IR();
+  public static boolean enable = false;
 
   public static ToyJIT compile(String clazzName, String methodName, String methodDescriptor,
                         final byte[] codes, int maxLocals, int maxStack, int argCnt, boolean hasRet) {
+    if (!enable) return null;
     String k = key(clazzName, methodName, methodDescriptor);
     ToyJIT jit = methods.get(k);
     if (jit != null) {

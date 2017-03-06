@@ -189,7 +189,6 @@ public class IR {
       }
       translator.translate(state, inst, it);
     }
-    dump(state.irs);
     dumpToFile(state.irs, "irs.out");
     return new IRResult(state.irs, labels.size());
   }

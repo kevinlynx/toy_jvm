@@ -1,5 +1,6 @@
 package com.codemacro.jvm;
 
+import com.codemacro.jvm.jit.JITMethodFactory;
 import org.freeinternals.format.classfile.MethodInfo;
 
 import java.util.function.Function;
@@ -8,12 +9,18 @@ import java.util.function.Function;
  * Created on 2017/2/18.
  */
 public class VM {
+  public static class Config {
+    public boolean jit = false;
+  }
   private ClassPath mCP;
   private ClassLoader mRootLoader;
+  private Config mConf;
 
-  public VM(String[] pathList) {
+  public VM(String[] pathList, Config conf) {
     mCP = new ClassPath(pathList);
     mRootLoader = new ClassLoader(mCP);
+    mConf = conf;
+    JITMethodFactory.enable = mConf.jit;
   }
 
   public void run(String mainClass) {
@@ -26,10 +33,5 @@ public class VM {
     }
     Thread thread = new Thread();
     thread.run(clazz, method);
-  }
-
-  public static void main(String[] args) {
-    VM vm = new VM(".;runtime".split(";"));
-    vm.run("test/ClassFile");
   }
 }

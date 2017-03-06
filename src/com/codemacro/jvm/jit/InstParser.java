@@ -74,6 +74,8 @@ public class InstParser {
     register(Opcode.op_iconst_4, reader0);
     register(Opcode.op_iconst_5, reader0);
 
+    register(Opcode.op_aconst_null, reader0);
+
     register(Opcode.op_istore_0, reader0);
     register(Opcode.op_istore_1, reader0);
     register(Opcode.op_istore_2, reader0);
@@ -98,18 +100,35 @@ public class InstParser {
     register(Opcode.op_idiv, reader0);
     register(Opcode.op_iadd, reader0);
     register(Opcode.op_isub, reader0);
+    register(Opcode.op_iinc, readerBB);
 
     register(Opcode.op_ifgt, readerUBUB);
     register(Opcode.op_ifle, readerUBUB);
+    register(Opcode.op_if_icmpge, readerUBUB);
+    register(Opcode.op_if_icmpgt, readerUBUB);
+    register(Opcode.op_if_icmplt, readerUBUB);
+    register(Opcode.op_if_icmple, readerUBUB);
+    register(Opcode.op_goto, readerUBUB);
+
+    register(Opcode.op_new, readerBB);
 
     register(Opcode.op_ldc, readerB);
     register(Opcode.op_bipush, readerB);
     register(Opcode.op_sipush, readerS);
 
     register(Opcode.op_ireturn, reader0);
+    register(Opcode.op_areturn, reader0);
     register(Opcode.op_return, reader0);
     register(Opcode.op_invokestatic, readerBB);
+    register(Opcode.op_invokespecial, readerBB);
+    register(Opcode.op_invokevirtual, readerBB);
     register(Opcode.op_pop, reader0);
+
+    register(Opcode.op_dup, reader0);
+
+    register(Opcode.op_putfield, readerBB);
+    register(Opcode.op_getfield, readerBB);
+    register(Opcode.op_checkcast, readerBB);
   }
 
   public List<Instruction> parse(PosDataInputStream stream) {
@@ -128,7 +147,6 @@ public class InstParser {
     } catch (IOException e) {
       logger.log(Level.SEVERE, null, e);
     }
-    dump(insts);
     return insts;
   }
 

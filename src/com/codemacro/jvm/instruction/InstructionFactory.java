@@ -101,6 +101,11 @@ public class InstructionFactory {
       frame.popSlot();
     });
 
+    register(Opcode.op_iinc, (codes, frame) -> {
+      int v1 = codes.readByte();
+      int i1 = codes.readByte();
+      frame.storeLocal(v1, i1 + frame.loadLocal(v1));
+    });
     register(Opcode.op_iadd, (codes, frame) -> {
       int i1 = frame.popInt();
       int i2 = frame.popInt();
@@ -153,6 +158,16 @@ public class InstructionFactory {
       int i1 = frame.popInt();
       int i2 = frame.popInt();
       if (i1 != i2) {
+        frame.offsetPC(offset);
+      }
+    });
+    register(Opcode.op_if_icmpge, (codes, frame) -> {
+      int b1 = codes.readUnsignedByte();
+      int b2 = codes.readUnsignedByte();
+      short offset = (short)((b1 << 8) + b2);
+      int i1 = frame.popInt();
+      int i2 = frame.popInt();
+      if (i2 >= i1) {
         frame.offsetPC(offset);
       }
     });

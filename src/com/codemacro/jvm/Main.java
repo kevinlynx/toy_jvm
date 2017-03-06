@@ -8,8 +8,8 @@ import java.util.function.Function;
  * Created on 2017/2/23.
  */
 public class Main {
-  public static void run(String cp, String mainClass) {
-    VM vm = new VM(cp.split(";|:"));
+  public static void run(String cp, String mainClass, VM.Config conf) {
+    VM vm = new VM(cp.split(";|:"), conf);
     vm.run(mainClass.replace('.', '/'));
   }
 
@@ -17,6 +17,7 @@ public class Main {
     CommandLineParser parser = new DefaultParser();
     Options options = new Options();
     options.addOption("cp", "classpath", true, "specify class path" );
+    options.addOption("jit", "jit", false, "enable jit" );
     options.addOption("h", "help", false, "print this message" );
     Function<Void, Integer> pHelp = (v) -> {
       HelpFormatter formatter = new HelpFormatter();
@@ -33,8 +34,12 @@ public class Main {
         pHelp.apply(null);
         return;
       }
+      VM.Config conf = new VM.Config();
+      if (line.hasOption("jit")) {
+        conf.jit = true;
+      }
       String mainClass = line.getArgList().get(0);
-      run(cp, mainClass);
+      run(cp, mainClass, conf);
     } catch(ParseException exp) {
       pHelp.apply(null);
     }

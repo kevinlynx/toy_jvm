@@ -44,6 +44,9 @@ public class NativeMethodFactory {
     mMethods.put(makeKey(CLZ_SYSTEM, "showVersion", "()V"), (frame) -> {
       System.out.println("toy jvm 0.0.1");
     });
+    mMethods.put(makeKey(CLZ_SYSTEM, "currentTimeSeconds", "()I"), (frame) -> {
+      frame.pushInt((int) (System.currentTimeMillis() / 1000));
+    });
     mMethods.put(makeKey("java/lang/StringBuilder", "append",
         "(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;"), (frame) -> {
       String s = (String) frame.popRef();
